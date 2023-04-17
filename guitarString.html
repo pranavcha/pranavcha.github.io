@@ -1,20 +1,75 @@
 <!DOCTYPE html>
 <html>
-    <canvas id="cw"></canvas> </canvas>
+    <body>
+        <center><h1>Wave Equation with Stress/Strain Coupling and Damping</h1></center>
+        <style>
+          .form-item {
+            display: inline-block;
+            width: 200px;
+            text-align: left;
+            margin-right: 20px;
+            margin-top: 40px;
+            margin-bottom: 0px;
+          }
+          .form-item input {
+            width: 100%;
+          }
+        </style>
+        <div>
+        <center>
+          <div class="form-item">
+            <label for="cInput">Speed (c)</label>
+          </div>
+          <div class="form-item">
+            <input type="range" id="cInput" min="0.002" max="0.01" value="0.0067" step="0.0001">
+          </div>
+          <br>
+          <div class="form-item">
+            <label for="gammaInput">Damping (&gamma;)</label>
+          </div>
+          <div class="form-item">
+            <input type="range" id="gammaInput" min="0" max="600" value="300" step="1">
+          </div>
+        </center>
+        </div>
+        <canvas id="cw"></canvas>
+    </body>
     <script>
+        const gammaInput = document.getElementById("gammaInput");
+        const cInput = document.getElementById("cInput");
         const canvas = document.getElementById("cw");
         const context = canvas.getContext("2d");
-        let mouseY = 0;
-        let mouseX = 0;
+        const boxLeft = canvas.width * 0.2;
+        const boxRight = canvas.width * 0.8;
+        let dotSize = 5;
+        let dotColor = "blue";
+        function drawDot(x, y) {
+            context.beginPath();
+            context.arc(x, y, dotSize, 0, 2 * Math.PI);
+            context.fillStyle = dotColor;
+            context.fill();
+        }
+        let mouseY = 1000;
+        let mouseX = 1000;
         let isDragging = false;
         // let MODE = "MOVE_LEFT_END"
         let MODE = "DRAG_CENTER"
         function update(i, y_t0, y_t1, c, gam, l, dx, dt) {
             return 1 / (1 / (c*dt)**2 + gam/(2*dt))
-                    * (1/dx**2 * (y_t1[i+1] - 2*y_t1[i] +  y_t1[i-1]) 
-                    - 1/(c*dt)**2 * (y_t0[i] - 2*y_t1[i] )
-                    + gam/(2*dt) * y_t0[i] 
-                    - (l/ dx**2)**2 * (y_t1[i-2] - 4*y_t1[i-1] + 6*y_t1[i] -4*y_t1[i+1] + y_t1[i+2]))
+                    * (
+                        - 1/(c*dt)**2 * (
+                            y_t0[i] - 2*y_t1[i] 
+                        )
+                        + 1/dx**2 * (
+                            y_t1[i+1] - 2*y_t1[i] +  y_t1[i-1]
+                        )
+                        + gam/(2*dt) * (
+                            y_t0[i] 
+                        )
+                        - (l/ dx**2)**2 * (
+                            y_t1[i-2] - 4*y_t1[i-1] + 6*y_t1[i] -4*y_t1[i+1] + y_t1[i+2]
+                        )
+                    )
         }
         class String {
             constructor(N) {
@@ -23,20 +78,16 @@
                 this.y_t0 = this.x.map(xi => 0)
                 this.y_t1 = structuredClone(this.y_t0);
                 this.y_t2 = structuredClone(this.y_t0);
-                this.gamma = 200
-                this.l = 0.002
                 this.dx = this.x[1] - this.x[0]
-                this.c = 1/150
-                this.dt = 0.2
+                // you can change these parameters
+                this.dt = 0.35 
+                this.l = 0.002
             }
             move(draw) {
-                // Boundary Conditions
-                this.y_t2[0] = this.y_t1[0]
-                this.y_t2[1] = this.y_t1[1]
-                this.y_t2[this.N-2] = this.y_t1[this.N-2]
-                this.y_t2[this.N-1] = this.y_t1[this.N-1]
-                // PDE 
-                for (let i=2; i<this.y_t1.length-2; i++) {
+                this.gamma = gammaInput.value;
+                this.c = cInput.value;
+                // Update solution using PDE 
+                for (let i = 2; i < this.y_t1.length - 2; i++) {
                     this.y_t2[i] = update(i, this.y_t0, this.y_t1, this.c, this.gamma, this.l, this.dx, this.dt)
                     drawString(this, i)
                 }
@@ -45,40 +96,68 @@
             };
         }
         function str2cnv_coords(x_str, y_str) {
-            return {x_cnv: x_str*canvas.width,
+            const boxLeft = canvas.width * 0.2;
+            const boxWidth = canvas.width * 0.6;
+            return {x_cnv: boxLeft + x_str*boxWidth,
                     y_cnv: y_str*canvas.width + canvas.height/2}
-        }
+        }  
         function cnv2str_coords(x_cnv, y_cnv) {
-            return {x_str: x_cnv / canvas.width,
-                    y_str: (y_cnv - canvas.height/2) / canvas.width}
+            const boxLeft = canvas.width * 0.2;
+            const boxWidth = canvas.width * 0.6;
+            return {
+                x_str: (x_cnv - boxLeft) / boxWidth,
+                y_str: (y_cnv - canvas.height / 2) / canvas.width
+            };
         }
-        // Draw line between (i-1)th and (i)th string point
         function drawString(s, i) {
             context.beginPath();
-            context.lineWidth = 3
+            context.lineWidth = 2;
             context.strokeStyle = "black";
-            let {x_cnv: x_cnv0, y_cnv: y_cnv0} = str2cnv_coords(s.x[i-1], s.y_t2[i-1])
-            let {x_cnv: x_cnv1, y_cnv: y_cnv1} = str2cnv_coords(s.x[i], s.y_t2[i])
-            context.moveTo(x_cnv0, y_cnv0);
+            const { x_cnv: x_cnv, y_cnv: y_cnv } = str2cnv_coords(s.x[i - 1], s.y_t2[i - 1]);
+            const { x_cnv: x_cnv1, y_cnv: y_cnv1 } = str2cnv_coords(s.x[i], s.y_t2[i]);
+            context.moveTo(x_cnv, y_cnv);
             context.lineTo(x_cnv1, y_cnv1);
             context.stroke();
         }
         function dragString(s) {
-            let {x_str, y_str} = cnv2str_coords(mouseX, mouseY)
-            if (MODE=='MOVE_LEFT_END') {
-                s.y_t1[0] = s.y_t1[1] = y_str
-            }
-            else if (MODE=='DRAG_CENTER') {
-                s.y_t1[Math.round(s.N*x_str)] = y_str
+            let {x_str, y_str} = cnv2str_coords(mouseX, mouseY);
+            // box boundaries
+            const boxLeft = canvas.width * 0.2;
+            const boxRight = canvas.width  * 0.8;
+            const boxTop = canvas.height * 0.2;
+            const boxBottom = canvas.height * 0.8;
+            // only allow mouse clicks inside box to affect string
+            if (x_str >= 0 && x_str <= 1 && mouseX >= boxLeft && mouseX <= boxRight && mouseY >= boxTop && mouseY <= boxBottom) {
+                if (MODE == 'MOVE_LEFT_END') {
+                s.y_t1[0] = s.y_t1[1] = y_str;
+            } else if (MODE == 'DRAG_CENTER') {
+                s.y_t1[Math.round((s.N-1) * x_str)] = y_str;
+                }
             }
         }
         function anim() {
             requestAnimationFrame(anim);
             context.fillStyle = "white";
             context.fillRect(0, 0, canvas.width, canvas.height);
-            for (let i=5; i--;) {
-                s.move(draw=(i==0))
-                if (isDragging) dragString(s)
+            // Draw border lines
+            context.beginPath();
+            context.lineWidth = 1;
+            context.strokeStyle = "grey";
+            const boxLeft = canvas.width * 0.2;
+            const boxRight = canvas.width * 0.8
+            const boxTop = canvas.height * 0.2;
+            const boxBottom = canvas.height * 0.8;
+            context.moveTo(boxLeft, boxTop);
+            context.lineTo(boxRight, boxTop);
+            context.lineTo(boxRight, boxBottom);
+            context.lineTo(boxLeft, boxBottom);
+            context.closePath();
+            context.stroke();
+            for (let i = 5; i--;) {
+                s.move(draw = (i == 0));
+                if (isDragging) 
+                  dragString(s);
+                  drawDot(mouseX, mouseY);
             }
         }
         function setSize(){
@@ -88,11 +167,13 @@
         addEventListener("mousemove", (e) => {
             mouseX = e.clientX;
             mouseY = e.clientY;
-            // console.log(mouseX, mouseY)
         },
         );
         addEventListener("mousedown", (e) => {
             isDragging = true;
+            const rect = canvas.getBoundingClientRect();
+            const mouseX = e.clientX - rect.left;
+            const mouseY = e.clientY - rect.top;
         },
         );
         addEventListener("mouseup", (e) => {
@@ -102,120 +183,8 @@
         },
         );
         addEventListener("resize", () => setSize());
-
         let s = new String(200)
         setSize();
         anim();
     </script>
 </html>
-
-<!-- <!DOCTYPE html>
-<html>
-    <canvas id="cw"></canvas> </canvas>
-    <script>
-        const canvas = document.getElementById("cw");
-        const context = canvas.getContext("2d");
-        let mouseY = 0;
-        let mouseX = 0;
-        let isDragging = false;
-        // let MODE = "MOVE_LEFT_END"
-        let MODE = "DRAG_CENTER"
-        function update(i, y_t0, y_t1, c, gam, l, dx, dt) {
-            return 1 / (1 / (c*dt)**2 + gam/(2*dt))
-                    * (1/dx**2 * (y_t1[i+1] - 2*y_t1[i] +  y_t1[i-1]) 
-                    - 1/(c*dt)**2 * (y_t0[i] - 2*y_t1[i] )
-                    + gam/(2*dt) * y_t0[i] 
-                    - (l/ dx**2)**2 * (y_t1[i-2] - 4*y_t1[i-1] + 6*y_t1[i] -4*y_t1[i+1] + y_t1[i+2]))
-        }
-        class String {
-            constructor(N) {
-                this.N = N
-                this.x = [...Array(this.N)].map((_,i) => i/this.N);
-                this.y_t0 = this.x.map(xi => 0)
-                this.y_t1 = structuredClone(this.y_t0);
-                this.y_t2 = structuredClone(this.y_t0);
-                this.gamma = 200
-                this.l = 0.002
-                this.dx = this.x[1] - this.x[0]
-                this.c = 1/150
-                this.dt = 0.2
-            }
-            move(draw) {
-                // Boundary Conditions
-                this.y_t2[0] = this.y_t1[0]
-                this.y_t2[1] = this.y_t1[1]
-                this.y_t2[this.N-2] = this.y_t1[this.N-2]
-                this.y_t2[this.N-1] = this.y_t1[this.N-1]
-                // PDE 
-                for (let i=2; i<this.y_t1.length-2; i++) {
-                    this.y_t2[i] = update(i, this.y_t0, this.y_t1, this.c, this.gamma, this.l, this.dx, this.dt)
-                    drawString(this, i)
-                }
-                this.y_t0 = structuredClone(this.y_t1)
-                this.y_t1 = structuredClone(this.y_t2)
-            };
-        }
-        function str2cnv_coords(x_str, y_str) {
-            return {x_cnv: x_str*canvas.width,
-                    y_cnv: y_str*canvas.width + canvas.height/2}
-        }
-        function cnv2str_coords(x_cnv, y_cnv) {
-            return {x_str: x_cnv / canvas.width,
-                    y_str: (y_cnv - canvas.height/2) / canvas.width}
-        }
-        // Draw line between (i-1)th and (i)th string point
-        function drawString(s, i) {
-            context.beginPath();
-            context.lineWidth = 3
-            context.strokeStyle = "black";
-            let {x_cnv: x_cnv0, y_cnv: y_cnv0} = str2cnv_coords(s.x[i-1], s.y_t2[i-1])
-            let {x_cnv: x_cnv1, y_cnv: y_cnv1} = str2cnv_coords(s.x[i], s.y_t2[i])
-            context.moveTo(x_cnv0, y_cnv0);
-            context.lineTo(x_cnv1, y_cnv1);
-            context.stroke();
-        }
-        function dragString(s) {
-            let {x_str, y_str} = cnv2str_coords(mouseX, mouseY)
-            if (MODE=='MOVE_LEFT_END') {
-                s.y_t1[0] = s.y_t1[1] = y_str
-            }
-            else if (MODE=='DRAG_CENTER') {
-                s.y_t1[Math.round(s.N*x_str)] = y_str
-            }
-        }
-        function anim() {
-            requestAnimationFrame(anim);
-            context.fillStyle = "white";
-            context.fillRect(0, 0, canvas.width, canvas.height);
-            for (let i=5; i--;) {
-                s.move(draw=(i==0))
-                if (isDragging) dragString(s)
-            }
-        }
-        function setSize(){
-            canvas.height = innerHeight;
-            canvas.width = innerWidth;
-        }
-        addEventListener("mousemove", (e) => {
-            mouseX = e.clientX;
-            mouseY = e.clientY;
-            // console.log(mouseX, mouseY)
-        },
-        );
-        addEventListener("mousedown", (e) => {
-            isDragging = true;
-        },
-        );
-        addEventListener("mouseup", (e) => {
-            isDragging = false;
-            return {x_cnv: x_str*canvas.width - canvas.width/2,
-                    y_cnv: y_str*canvas.width}
-        },
-        );
-        addEventListener("resize", () => setSize());
-
-        let s = new String(200)
-        setSize();
-        anim();
-    </script>
-</html> -->
