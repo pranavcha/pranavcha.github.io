@@ -1,11 +1,6 @@
 @import url(fontawesome-all.min.css);
 @import url("https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,700,900");
 
-/*
-	Phantom by HTML5 UP
-	html5up.net | @ajlkn
-	Free for personal and commercial use under the CCA 3.0 license (html5up.net/license)
-*/
 
 html, body, div, span, applet, object,
 iframe, h1, h2, h3, h4, h5, h6, p, blockquote,
@@ -25,7 +20,6 @@ section, summary, time, mark, audio, video {
 	font: inherit;
 	vertical-align: baseline;}
 
-pranavcha.github.io
 article, aside, details, figcaption, figure,
 footer, header, hgroup, menu, nav, section {
 	display: block;}
@@ -2171,8 +2165,8 @@ input, select, textarea {
 		input[type="tel"]:focus,
 		select:focus,
 		textarea:focus {
-			border-bottom-color: #f2849e;
-			box-shadow: inset 0 -1px 0 0 #f2849e;
+			border-bottom-color: #2da78f;
+			box-shadow: inset 0 -1px 0 0 #2da78f;
 		}
 
 	select {
@@ -2276,8 +2270,8 @@ input, select, textarea {
 
 		input[type="checkbox"]:focus + label:before,
 		input[type="radio"]:focus + label:before {
-			border-color: #f2849e;
-			box-shadow: 0 0 0 1px #f2849e;
+			border-color: #2da78f;
+			box-shadow: 0 0 0 1px #2da78f;
 		}
 
 	input[type="checkbox"] + label:before {
@@ -2495,8 +2489,8 @@ input, select, textarea {
 		input[type="button"]:hover,
 		button:hover,
 		.button:hover {
-			color: #f2849e !important;
-			box-shadow: inset 0 0 0 2px #f2849e;
+			color: #2da78f !important;
+			box-shadow: inset 0 0 0 2px #2da78f;
 		}
 
 		input[type="submit"]:active,
@@ -2538,7 +2532,7 @@ input, select, textarea {
 			input[type="button"].primary:hover,
 			button.primary:hover,
 			.button.primary:hover {
-				background-color: #f2849e;
+				background-color: #2da78f;
 			}
 
 			input[type="submit"].primary:active,
@@ -2546,7 +2540,7 @@ input, select, textarea {
 			input[type="button"].primary:active,
 			button.primary:active,
 			.button.primary:active {
-				background-color: #ee5f81;
+				background-color: #2da78f;
 			}
 
 		input[type="submit"].disabled, input[type="submit"]:disabled,
@@ -2830,15 +2824,16 @@ input, select, textarea {
 /* Header */
 
 	#header {
-		padding: 8em 0 0.1em 0 ;
+		padding: 4em 0 0.1em 0 ;
 	}
 
 		#header .logo {
 			display: block;
 			border-bottom: 0;
-			color: inherit;
+			color:inherit;
+			font-size:24px; ;
 			font-weight: 900;
-			letter-spacing: 0.35em;
+			letter-spacing: 0.08em;
 			margin: 0 0 2.5em 0;
 			text-decoration: none;
 			text-transform: uppercase;
@@ -2856,8 +2851,8 @@ input, select, textarea {
 
 				#header .logo .symbol img {
 					display: block;
-					width: 2em;
-					height: 2em;
+					width: 8em;
+					height: 8em;
 				}
 
 		#header nav {
