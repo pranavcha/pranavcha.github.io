@@ -1,18 +1,35 @@
 <!DOCTYPE html>
 <html>
+    <head>
+        <style>
+            html, body {
+                height: 100%;
+                width: 100%;
+                font-size: 16px; /* adjust to fit within viewport */
+                /* add other styles here */
+                }
+        </style>
+    </head>
     <body>
-        <center><h1>Wave Equation with Stress/Strain Coupling and Damping</h1></center>
+        <header">
+            <div class="inner">
+                <a href="index.html">
+                    <h3>Return to Portfolio</h3>
+                </a>
+            </div>
+        </header>  
+        <center><h2>Central Difference Scheme Applied to The Wave Equation <br> with Damping and Stress/Strain Coupling<br><br> 1/c² uₜₜ - uₓₓ - &ell;² uₓₓₓₓ - &gamma; uₜ = 0</h2></center>
         <style>
           .form-item {
-            display: inline-block;
+            display: block;
             width: 200px;
-            text-align: right;
-            margin-right: 20px;
-            margin-top: 40px;
-            margin-bottom: 0px;
+            text-align: center;
+            margin-right: 80px;
+            margin-top: 5px;
           }
           .form-item input {
             width: 100%;
+            padding: 0px;
           }
         </style>
         <div>
@@ -139,7 +156,7 @@
             requestAnimationFrame(anim);
             context.fillStyle = "white";
             context.fillRect(0, 0, canvas.width, canvas.height);
-            // Draw border lines
+            // Draw border lines & Move string
             context.beginPath();
             context.lineWidth = 1;
             context.strokeStyle = "grey";
@@ -181,7 +198,7 @@
             return {x_cnv: x_str*canvas.width - canvas.width/2,
                     y_cnv: y_str*canvas.width}
         },
-        ); 
+        );
         addEventListener("resize", () => setSize());
         let s = new String(200)
         setSize();
