@@ -5,8 +5,7 @@
             html, body {
                 height: 100%;
                 width: 100%;
-                font-size: 16px; /* adjust to fit within viewport */
-                /* add other styles here */
+                font-size: 16px;
                 }
         </style>
     </head>
@@ -18,7 +17,8 @@
                 </a>
             </div>
         </header>  
-        <center><h2>Central Difference Scheme Applied to The Wave Equation <br> with Damping and Stress/Strain Coupling<br><br> 1/c² uₜₜ - uₓₓ - &ell;² uₓₓₓₓ - &gamma; uₜ = 0</h2></center>
+        <!-- <center> -->
+        <h2>Wave Equation with Damping and Stress/Strain Coupling<br><br> uₜₜ - c²uₓₓ = c²(&ell;² uₓₓₓₓ - &gamma; uₜ)</h2></center>
         <style>
           .form-item {
             display: block;
@@ -33,7 +33,6 @@
           }
         </style>
         <div>
-        <center>
           <div class="form-item">
             <label for="cInput">Speed (c)</label>
           </div>
@@ -47,7 +46,6 @@
           <div class="form-item">
             <input type="range" id="gammaInput" min="0" max="600" value="300" step="1">
           </div>
-        </center>
         </div>
         <canvas id="cw"></canvas>
     </body>
@@ -66,8 +64,8 @@
             context.fillStyle = dotColor;
             context.fill();
         }
-        let mouseY = 1000;
-        let mouseX = 1000;
+        let mouseY = 0;
+        let mouseX = 0;
         let isDragging = false;
         // let MODE = "MOVE_LEFT_END"
         let MODE = "DRAG_CENTER"
@@ -205,3 +203,4 @@
         anim();
     </script>
 </html>
+
